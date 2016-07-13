@@ -2,11 +2,26 @@
 <html lang="en">
 <head>
 	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<title>Meal Calculator</title>
 	<link rel="stylesheet" href="meal_calculator.0.0.0.min.css">
 </head>
 <body>
-	<div class="container">
+	<div class="container">		
+		<header>
+			<h1>Meal Calculator</h1>
+			<ul>
+				<li>
+					<button data-bind="click: showOrder">Order</button>
+				</li>
+				<li>
+					<button data-bind="click: showFinalBill">Final Bill</button>
+				</li>
+				<li>
+					<button data-bind="click: showIndivdual">Individual</button>
+				</li>
+			</ul>
+		</header>
 		<div class="column-left">
 			<ul class="diners" data-bind="foreach: diners">
 				<li class="diner">
@@ -17,14 +32,14 @@
 						</li>
 					</ul>
 					<form id="new-dish" data-bind="submit: addDish">
-						<input type="text" name="newDishName" id="new-dish-name" placeholder="Name">
+						<input type="text" name="newDishName" id="new-dish-name" placeholder="Dish">
 						<input type="text" name="newDishPrice" id="new-dish-price" placeholder="Price">
 						<input type="submit" id="new-dish-add" value="Add Dish">
 					</form>
 				</li>
 			</ul>
 			<form id="new-diner" data-bind="submit: addDiner">
-				<input type="text" name="newDinerName" id="new-diner-name" placeholder="Name" data-bind="value: newDinerName">
+				<input type="text" name="newDinerName" id="new-diner-name" placeholder="Diner">
 				<input type="submit" id="new-diner-add" value="Add Diner">
 			</form>
 		</div>
@@ -32,14 +47,18 @@
 		<div class="column">
 			<p class="subtotal">Subtotal : $<span data-bind="text: subtotalAll"></span></p>
 			<p class="tax">Tax % <span data-bind="text: taxPrecent"></span>: $<span data-bind="text: taxTotalAll"></span></p>
-			<p class="tip">Tip % <span data-bind="text: tipPrecent"></span>: $<span  data-bind="text: tipTotalAll"></span></p>
+			<p class="tip">Tip % <span data-bind="text: tipPrecent"></span>: $<span data-bind="text: tipTotalAll"></span></p>
 			<p class="total">Total : $<span data-bind="text: totalTotalAll"></span></p>
 		</div>
 
 		<div class="column-right">
 			<ul class="diners-totals" data-bind='foreach: diners'>
 				<li>
-					<p class="diners-total"><span data-bind="text: $index"></span> name: <span data-bind="text: name"></span> Subtotal: $<span data-bind="text: subtotal"></span> tax: $<span data-bind="text: tax"></span> tip: $<span data-bind="text: tip"></span> total: $<span data-bind="text: total"></span></p>
+					<p>Name: <span data-bind="text: name"></span></p>
+					<p>Subtotal: $<span data-bind="text: subtotal"></span></p>
+					<p>Tax: $<span data-bind="text: tax"></span> </p>
+					<p>Tip: $<span data-bind="text: tip"></span></p>
+					<p>Total: $<span data-bind="text: total"></span></p>
 				</li>
 			</ul>
 		</div>

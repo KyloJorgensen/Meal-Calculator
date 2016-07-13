@@ -49,11 +49,11 @@
 	var $ = __webpack_require__(1);
 	var ko = __webpack_require__(2);
 	var veiwmodel = __webpack_require__(5);
-	var Veiw = __webpack_require__(6);
 	var config = __webpack_require__(7);
+	var Diner = __webpack_require__(6);
 	
 	$(document).ready(function () {
-	    ko.applyBindings(new veiwmodel(config, Veiw));
+	    ko.applyBindings(new veiwmodel(config));
 	});
 
 /***/ },
@@ -16045,81 +16045,25 @@
 	
 	var ko = __webpack_require__(2);
 	var $ = __webpack_require__(1);
+	var Diner = __webpack_require__(6);
 	
-	var VeiwModel = function VeiwModel(config, Veiw) {
+	var VeiwModel = function VeiwModel(config) {
 		var self = this;
-		var veiw = new Veiw(self);
 	
-		this.validateNameAndPrice = function (name, price) {
-			if (name && price) {
-				if (price >= 0) {
-					self.addDiner(name, price);
-					veiw.clearDinerForm();
-					return;
-				}
-			}
-			alert('invalid Name or price');
-		};
-	
-		this.newDinerName = ko.observable('');
-	
-		this.addDiner = function () {
+		this.addDiner = function (formElement) {
 			event.preventDefault();
-			var newdiner = new Diner(self.newDinerName());
-			self.diners.push(newdiner);
+			var newDinerName = $(formElement).children('#new-diner-name').val();
+			self.validateDinerName(formElement, newDinerName);
 		};
 	
-		var Diner = function Diner(name) {
-			var diner = this;
-			this.name = ko.observable(name);
-	
-			this.dishes = ko.observableArray([]);
-	
-			this.subtotal = ko.computed(function () {
-				var subtotal = 0;
-				for (var i = 0; i < diner.dishes().length; i++) {
-					subtotal += Number(diner.dishes()[i].dishPrice());
-				}
-				return subtotal;
-			}, this);
-	
-			this.tax = ko.computed(function () {
-				var tax = diner.subtotal() * config.taxPrecent / 100;
-				tax = Number(tax).toFixed(2);
-				return tax;
-			}, this);
-	
-			this.tip = ko.computed(function () {
-				var tip = 0;
-				tip += Number(self.tipTotalAll());
-				tip /= Number(self.diners().length);
-				console.log(Number(self.diners().length));
-				// var tip = Number(diner.subtotal());
-				// tip += Number(this.tax());
-				// tip = tip*config.tipPrecent/100;
-				tip = Number(tip).toFixed(2);
-				return tip;
-			}, this);
-	
-			this.total = ko.computed(function () {
-				var total = Number(this.subtotal());
-				total += Number(this.tax());
-				total += Number(this.tip());
-				total = Number(total).toFixed(2);
-				return total;
-			}, this);
-	
-			this.addDish = function (formElement) {
-				var Dish = function Dish(dishName, dishPrice) {
-					this.dishName = ko.observable(dishName);
-					this.dishPrice = ko.observable(dishPrice);
-				};
-	
-				var dishName = $(formElement).children('#new-dish-name').val();
-				var dishPrice = $(formElement).children('#new-dish-price').val();
-				var dish = new Dish(dishName, dishPrice);
-				diner.dishes.push(dish);
-			};
+		this.validateDinerName = function (formElement, newDinerName) {
+			if (newDinerName) {
+				var newdiner = new Diner(newDinerName, self);
+				$(formElement).children('#new-diner-name').val('');
+				self.diners.push(newdiner);
+				return;
+			}
+			alert('invalid diner name.');
 		};
 	
 		this.diners = ko.observableArray([]);
@@ -16161,6 +16105,24 @@
 			total = Number(total).toFixed(2);
 			return total;
 		}, this);
+	
+		this.showOrder = function () {
+			$('.column-left').show();
+			$('.column').hide();
+			$('.column-right').hide();
+		};
+	
+		this.showFinalBill = function () {
+			$('.column-left').hide();
+			$('.column').show();
+			$('.column-right').hide();
+		};
+	
+		this.showIndivdual = function () {
+			$('.column-left').hide();
+			$('.column').hide();
+			$('.column-right').show();
+		};
 	};
 	
 	module.exports = VeiwModel;
@@ -16172,27 +16134,76 @@
 	'use strict';
 	
 	var $ = __webpack_require__(1);
+	var ko = __webpack_require__(2);
+	var config = __webpack_require__(7);
 	
-	var Veiw = function Veiw(self) {
-		// $('body').on('submit', '#new-diner', function() {
-		// 	event.preventDefault();
-		// 	var name = $('#new-diner-name').val();
-		// 	self.addDiner(name);
-		// });
+	var Diner = function Diner(name, veiwmodel) {
+		var diner = this;
 	
-		// $('body').on('submit', '#new-dish', function() {
-		// 	event.preventDefault();
-		// 	var name = $(this).siblings('#new-dish-name').val();
-		// 	var price = $(this).siblings('#new-dish-price').val();
-		// 	self.addDish(name, price);
-		// });
+		this.name = ko.observable(name);
 	
-		this.clearDinerForm = function () {
-			$('#new-diner-name').val('');
+		this.dishes = ko.observableArray([]);
+	
+		this.subtotal = ko.computed(function () {
+			var subtotal = 0;
+			for (var i = 0; i < diner.dishes().length; i++) {
+				subtotal += Number(diner.dishes()[i].dishPrice());
+			}
+			return subtotal;
+		}, this);
+	
+		this.tax = ko.computed(function () {
+			var tax = diner.subtotal() * config.taxPrecent / 100;
+			tax = Number(tax).toFixed(2);
+			return tax;
+		}, this);
+	
+		this.tip = ko.computed(function () {
+			var tip = 0;
+			tip += Number(veiwmodel.tipTotalAll());
+			tip /= Number(veiwmodel.diners().length);
+			tip = Number(tip).toFixed(2);
+			return tip;
+		}, this);
+	
+		this.total = ko.computed(function () {
+			var total = Number(this.subtotal());
+			total += Number(this.tax());
+			total += Number(this.tip());
+			total = Number(total).toFixed(2);
+			return total;
+		}, this);
+	
+		this.addDish = function (formElement) {
+			var dishName = $(formElement).children('#new-dish-name').val();
+			var dishPrice = $(formElement).children('#new-dish-price').val();
+			diner.validateDishNameAndDishPrice(dishName, dishPrice, formElement);
+		};
+	
+		this.validateDishNameAndDishPrice = function (dishName, dishPrice, formElement) {
+			if (dishName && dishPrice) {
+				if (dishPrice >= 0) {
+					diner.generateDish(dishName, dishPrice, formElement);
+					return;
+				}
+			}
+			alert('invalid Name or price');
+		};
+	
+		this.generateDish = function (dishName, dishPrice, formElement) {
+			var dish = new Dish(dishName, dishPrice);
+			diner.dishes.push(dish);
+			$(formElement).children('#new-dish-name').val('');
+			$(formElement).children('#new-dish-price').val('');
+		};
+	
+		var Dish = function Dish(dishName, dishPrice) {
+			this.dishName = ko.observable(dishName);
+			this.dishPrice = ko.observable(dishPrice);
 		};
 	};
 	
-	module.exports = Veiw;
+	module.exports = Diner;
 
 /***/ },
 /* 7 */
