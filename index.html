@@ -3,10 +3,37 @@
 <head>
 	<meta charset="UTF-8">
 	<title>Meal Calculator</title>
-	<link rel="stylesheet" href="build/meal_calculator.0.0.0.min.css">
+	<link rel="stylesheet" href="meal_calculator.0.0.0.min.css">
 </head>
 <body>
-	<p>Hello World!</p>
-	<script src="build/meal_calculator.0.0.0.min.js"></script>
+	<div class="container">
+		<div class="column-left">
+			<ul class="diners-meals" data-bind="foreach: diners">
+				<li>
+					<p class="diners-meal"><span data-bind="text: $index"></span> <span data-bind="text: name"></span> -- $<span data-bind="text: price"></span></p>
+				</li>
+			</ul>
+			<form id="new-diner">
+				<input type="text" name="newDinerName" id="new-diner-name" placeholder="Name">
+				<input type="text" name="newDinerPrice" id="new-diner-price" placeholder="Price">
+				<input type="submit" id="new-diner-add" value="Add Diner">
+			</form>
+		</div>
+		<div class="column">
+			<p class="subtotal">Subtotal : $<span data-bind="text: subtotal"></span></p>
+			<p class="tax">Tax % <span data-bind="text: taxPrecent"></span>: $<span data-bind="text: taxTotal"></span></p>
+			<p class="tip">Tip % <span data-bind="text: tipPrecent"></span>: $<span  data-bind="text: tipTotal"></span></p>
+			<p class="total">Total : $<span data-bind="text: totalTotal"></span></p>
+		</div>
+		<div class="column-right">
+			<ul class="diners-totals" data-bind='foreach: diners'>
+				<li>
+					<p class="diners-total"><span data-bind="text: $index"></span> name: <span data-bind="text: name"></span> tax: $<span data-bind="text: tax"></span> tip: $<span data-bind="text: tip"></span> total: $<span data-bind="text: total"></span></p>
+				</li>
+			</ul>
+		</div>
+	</div>
+
+	<script src="meal_calculator.0.0.0.min.js"></script>
 </body>
 </html>
