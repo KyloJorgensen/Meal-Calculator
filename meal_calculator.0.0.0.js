@@ -49,11 +49,11 @@
 	var $ = __webpack_require__(1);
 	var ko = __webpack_require__(2);
 	var veiwmodel = __webpack_require__(5);
-	var veiw = __webpack_require__(6);
+	var Veiw = __webpack_require__(6);
 	var config = __webpack_require__(7);
 	
 	$(document).ready(function () {
-	    ko.applyBindings(new veiwmodel(config, veiw));
+	    ko.applyBindings(new veiwmodel(config, Veiw));
 	});
 
 /***/ },
@@ -16046,16 +16046,9 @@
 	var ko = __webpack_require__(2);
 	var $ = __webpack_require__(1);
 	
-	var VeiwModel = function VeiwModel(config, veiw) {
+	var VeiwModel = function VeiwModel(config, Veiw) {
 		var self = this;
-		var init = function () {
-			$('#new-diner').submit(function () {
-				event.preventDefault();
-				var name = $('#new-diner-name').val();
-				var price = $('#new-diner-price').val();
-				self.validateNameAndPrice(name, price);
-			});
-		}();
+		var veiw = new Veiw(self);
 	
 		this.validateNameAndPrice = function (name, price) {
 			if (name && price) {
@@ -16068,42 +16061,77 @@
 			alert('invalid Name or price');
 		};
 	
-		this.addDiner = function (name, price) {
-			var newdiner = new Diner(name, price);
+		this.newDinerName = ko.observable('');
+	
+		this.addDiner = function () {
+			event.preventDefault();
+			var newdiner = new Diner(self.newDinerName());
 			self.diners.push(newdiner);
 		};
 	
-		var Diner = function Diner(name, price) {
+		var Diner = function Diner(name) {
+			var diner = this;
 			this.name = ko.observable(name);
-			this.price = ko.observable(price);
+	
+			this.dishes = ko.observableArray([]);
+	
+			this.subtotal = ko.computed(function () {
+				var subtotal = 0;
+				for (var i = 0; i < diner.dishes().length; i++) {
+					subtotal += Number(diner.dishes()[i].dishPrice());
+				}
+				return subtotal;
+			}, this);
+	
 			this.tax = ko.computed(function () {
-				var tax = this.price() * config.taxPrecent / 100;
+				var tax = diner.subtotal() * config.taxPrecent / 100;
 				tax = Number(tax).toFixed(2);
 				return tax;
 			}, this);
+	
 			this.tip = ko.computed(function () {
-				var tip = Number(this.price());
-				tip += Number(this.tax());
-				tip = tip * config.tipPrecent / 100;
+				var tip = 0;
+				tip += Number(self.tipTotalAll());
+				tip /= Number(self.diners().length);
+				console.log(Number(self.diners().length));
+				// var tip = Number(diner.subtotal());
+				// tip += Number(this.tax());
+				// tip = tip*config.tipPrecent/100;
 				tip = Number(tip).toFixed(2);
 				return tip;
 			}, this);
+	
 			this.total = ko.computed(function () {
-				var total = Number(this.price());
+				var total = Number(this.subtotal());
 				total += Number(this.tax());
 				total += Number(this.tip());
 				total = Number(total).toFixed(2);
 				return total;
 			}, this);
+	
+			this.addDish = function (formElement) {
+				var Dish = function Dish(dishName, dishPrice) {
+					this.dishName = ko.observable(dishName);
+					this.dishPrice = ko.observable(dishPrice);
+				};
+	
+				var dishName = $(formElement).children('#new-dish-name').val();
+				var dishPrice = $(formElement).children('#new-dish-price').val();
+				var dish = new Dish(dishName, dishPrice);
+				diner.dishes.push(dish);
+			};
 		};
 	
 		this.diners = ko.observableArray([]);
 	
-		this.subtotal = ko.computed(function () {
+		this.subtotalAll = ko.computed(function () {
 			var subtotal = 0;
-			for (var i = 0; i < self.diners().length; i++) {
-				subtotal += parseInt(self.diners()[i].price());
-			}
+			var length = self.diners().length;
+			$.each(self.diners(), function (key, value) {
+				$.each(value.dishes(), function (key, value) {
+					subtotal += Number(value.dishPrice());
+				});
+			});
 			subtotal = Number(subtotal).toFixed(2);
 			return subtotal;
 		}, this);
@@ -16112,24 +16140,24 @@
 	
 		this.tipPrecent = ko.observable(config.tipPrecent);
 	
-		this.taxTotal = ko.computed(function () {
-			var taxTotal = self.subtotal() * config.taxPrecent / 100;
+		this.taxTotalAll = ko.computed(function () {
+			var taxTotal = self.subtotalAll() * config.taxPrecent / 100;
 			taxTotal = Number(taxTotal).toFixed(2);
 			return taxTotal;
 		}, this);
 	
-		this.tipTotal = ko.computed(function () {
-			var tipTotal = Number(self.subtotal());
-			tipTotal += Number(self.taxTotal());
+		this.tipTotalAll = ko.computed(function () {
+			var tipTotal = Number(self.subtotalAll());
+			tipTotal += Number(self.taxTotalAll());
 			tipTotal = tipTotal * config.tipPrecent / 100;
 			tipTotal = Number(tipTotal).toFixed(2);
 			return tipTotal;
 		}, this);
 	
-		this.totalTotal = ko.computed(function () {
-			var total = Number(self.subtotal());
-			total += Number(self.taxTotal());
-			total += Number(self.tipTotal());
+		this.totalTotalAll = ko.computed(function () {
+			var total = Number(self.subtotalAll());
+			total += Number(self.taxTotalAll());
+			total += Number(self.tipTotalAll());
 			total = Number(total).toFixed(2);
 			return total;
 		}, this);
@@ -16145,14 +16173,26 @@
 	
 	var $ = __webpack_require__(1);
 	
-	var veiw = {
-		clearDinerForm: function clearDinerForm() {
+	var Veiw = function Veiw(self) {
+		// $('body').on('submit', '#new-diner', function() {
+		// 	event.preventDefault();
+		// 	var name = $('#new-diner-name').val();
+		// 	self.addDiner(name);
+		// });
+	
+		// $('body').on('submit', '#new-dish', function() {
+		// 	event.preventDefault();
+		// 	var name = $(this).siblings('#new-dish-name').val();
+		// 	var price = $(this).siblings('#new-dish-price').val();
+		// 	self.addDish(name, price);
+		// });
+	
+		this.clearDinerForm = function () {
 			$('#new-diner-name').val('');
-			$('#new-diner-price').val('');
-		}
+		};
 	};
 	
-	module.exports = veiw;
+	module.exports = Veiw;
 
 /***/ },
 /* 7 */

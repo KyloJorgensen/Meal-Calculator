@@ -8,27 +8,38 @@
 <body>
 	<div class="container">
 		<div class="column-left">
-			<ul class="diners-meals" data-bind="foreach: diners">
-				<li>
-					<p class="diners-meal"><span data-bind="text: $index"></span> <span data-bind="text: name"></span> -- $<span data-bind="text: price"></span></p>
+			<ul class="diners" data-bind="foreach: diners">
+				<li class="diner">
+					<p class="diner-name" data-bind="text: name"></p>
+					<ul class="dishes" data-bind="foreach: dishes">
+						<li>
+							<p class="dish"><span data-bind="text: dishName"></span> -- $<span data-bind="text: dishPrice"></span></p>
+						</li>
+					</ul>
+					<form id="new-dish" data-bind="submit: addDish">
+						<input type="text" name="newDishName" id="new-dish-name" placeholder="Name">
+						<input type="text" name="newDishPrice" id="new-dish-price" placeholder="Price">
+						<input type="submit" id="new-dish-add" value="Add Dish">
+					</form>
 				</li>
 			</ul>
-			<form id="new-diner">
-				<input type="text" name="newDinerName" id="new-diner-name" placeholder="Name">
-				<input type="text" name="newDinerPrice" id="new-diner-price" placeholder="Price">
+			<form id="new-diner" data-bind="submit: addDiner">
+				<input type="text" name="newDinerName" id="new-diner-name" placeholder="Name" data-bind="value: newDinerName">
 				<input type="submit" id="new-diner-add" value="Add Diner">
 			</form>
 		</div>
+
 		<div class="column">
-			<p class="subtotal">Subtotal : $<span data-bind="text: subtotal"></span></p>
-			<p class="tax">Tax % <span data-bind="text: taxPrecent"></span>: $<span data-bind="text: taxTotal"></span></p>
-			<p class="tip">Tip % <span data-bind="text: tipPrecent"></span>: $<span  data-bind="text: tipTotal"></span></p>
-			<p class="total">Total : $<span data-bind="text: totalTotal"></span></p>
+			<p class="subtotal">Subtotal : $<span data-bind="text: subtotalAll"></span></p>
+			<p class="tax">Tax % <span data-bind="text: taxPrecent"></span>: $<span data-bind="text: taxTotalAll"></span></p>
+			<p class="tip">Tip % <span data-bind="text: tipPrecent"></span>: $<span  data-bind="text: tipTotalAll"></span></p>
+			<p class="total">Total : $<span data-bind="text: totalTotalAll"></span></p>
 		</div>
+
 		<div class="column-right">
 			<ul class="diners-totals" data-bind='foreach: diners'>
 				<li>
-					<p class="diners-total"><span data-bind="text: $index"></span> name: <span data-bind="text: name"></span> tax: $<span data-bind="text: tax"></span> tip: $<span data-bind="text: tip"></span> total: $<span data-bind="text: total"></span></p>
+					<p class="diners-total"><span data-bind="text: $index"></span> name: <span data-bind="text: name"></span> Subtotal: $<span data-bind="text: subtotal"></span> tax: $<span data-bind="text: tax"></span> tip: $<span data-bind="text: tip"></span> total: $<span data-bind="text: total"></span></p>
 				</li>
 			</ul>
 		</div>
